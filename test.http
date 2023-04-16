@@ -1,0 +1,22 @@
+### Get all tours
+http://localhost:3000/api/v1/tours
+
+### Get tour(by parameter)
+http://localhost:3000/api/v1/tours/8
+
+
+### Create new tour
+POST http://localhost:3000/api/v1/tours HTTP/1.1
+content-type: application/json
+
+{
+  "name":"test tour",
+  "duration":10,
+  "difficulty":"easy"
+}
+
+### Update tour
+PATCH http://localhost:3000/api/v1/tours/1 HTTP/1.1
+
+### Delete tour
+DELETE http://localhost:3000/api/v1/tours/8 HTTP/1.1
