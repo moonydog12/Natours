@@ -1,11 +1,34 @@
 const fs = require('fs');
+
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
 );
 
+const checkID = (req, res, next, val) => {
+  if (req.params.id * 1 > tours.length) {
+    // 如果有錯誤，就讓 function 在這裡中斷 (回傳一個 response)
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid ID',
+    });
+  }
+  next();
+};
+
+// Create a checkBody middleware
+const checkBody = (req, res, next) => {
+  // 檢查 req body 包含特定 property
+  const { name, price } = req.body;
+  if (!name || !price) {
+    return res
+      .status(400)
+      .json({ status: 'fail', message: 'Missing name or price' });
+  }
+  next();
+};
+
 // Handlers
 const getAllTours = (req, res) => {
-  console.log(req.requestTime);
   res.status(200).json({
     status: 'successful',
     requestedAt: req.requestTime,
@@ -17,22 +40,15 @@ const getAllTours = (req, res) => {
 };
 
 const getTour = (req, res) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(req.params.id, 10);
   const tour = tours.find((tour) => tour.id === id);
 
-  if (tour) {
-    res.status(200).json({
-      status: 'successful',
-      data: {
-        tour,
-      },
-    });
-  } else {
-    res.status(404).json({
-      status: 'fail',
-      message: 'Invalid ID',
-    });
-  }
+  res.status(200).json({
+    status: 'successful',
+    data: {
+      tour,
+    },
+  });
 };
 
 const createTour = (req, res) => {
@@ -54,15 +70,6 @@ const createTour = (req, res) => {
 };
 
 const updateTour = (req, res) => {
-  if (req.params.id * 1 > tours.length - 1) {
-    return res.status(404).json({
-      status: 'fail',
-      data: {
-        tour: 'Invalid ID',
-      },
-    });
-  }
-
   res.status(200).json({
     status: 'successful',
     data: '<Updated data here>',
@@ -70,15 +77,6 @@ const updateTour = (req, res) => {
 };
 
 const deleteTour = (req, res) => {
-  if (req.params.id * 1 > tours.length - 1) {
-    return res.status(404).json({
-      status: 'fail',
-      data: {
-        tour: 'Invalid ID',
-      },
-    });
-  }
-
   res.status(204).json({
     status: 'successful',
     data: 'delete successfully',
@@ -91,4 +89,6 @@ module.exports = {
   updateTour,
   createTour,
   deleteTour,
+  checkID,
+  checkBody,
 };
