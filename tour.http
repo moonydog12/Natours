@@ -17,10 +17,18 @@ content-type: application/json
 }
 
 ### Update tour
-PATCH http://localhost:3000/api/v1/tours/1 HTTP/1.1
+PATCH http://localhost:3000/api/v1/tours/6447983c1861db33b84c4250 HTTP/1.1
+content-type: application/json
+
+{
+  "ratingsAverage": 4.9
+}
 
 ### Delete tour
 DELETE http://localhost:3000/api/v1/tours/8 HTTP/1.1
 
-###
-http://localhost:3000/api/v1/tours?difficulty=easy&duration[gte]=5&price[lt]=1500
+### Sorting
+http://localhost:3000/api/v1/tours?sort=-price,-ratingsAverage
+
+### Limiting
+http://localhost:3000/api/v1/tours?fields=name,duration,price

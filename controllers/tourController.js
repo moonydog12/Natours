@@ -10,12 +10,29 @@ const getAllTours = async (req, res) => {
     const excludeFields = ['page', 'sort', 'limit', 'fields'];
     excludeFields.forEach((el) => delete queryObj[el]);
 
-    // 2)進階篩選
+    // 1B)進階篩選
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`); // 為特定 mongoose 運算子新增字符
-    const query = Tour.find(JSON.parse(queryStr));
+    let query = Tour.find(JSON.parse(queryStr)); // return a query object
 
-    // 執行 query
+    // 2)排序
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(',').join(' ');
+      query = query.sort(sortBy);
+    } else {
+      // 預設排序為 tour 被新建的時間
+      query = query.sort('-createdAt');
+    }
+
+    // 3)限制搜尋欄位
+    if (req.query.fields) {
+      const fields = req.query.fields.split(',').join(' ');
+      query = query.select(fields);
+    } else {
+      query = query.select('-__v'); // 排除特定欄位
+    }
+
+    // 執行 query(必須放在 chaining method之後)
     const tours = await query;
 
     // 回傳結果
