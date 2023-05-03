@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const slugify = require('slugify');
 
 //  設定 schema 規格
 const tourSchema = new mongoose.Schema(
@@ -8,6 +9,7 @@ const tourSchema = new mongoose.Schema(
       required: [true, 'A tour must have a name'],
       unique: true,
     },
+    slug: String,
     duration: {
       type: Number,
       required: [true, 'A tour must have a duration'],
@@ -44,6 +46,10 @@ const tourSchema = new mongoose.Schema(
       select: false,
     },
     startDates: [Date],
+    secretTour: {
+      type: Boolean,
+      default: false,
+    },
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
@@ -52,6 +58,35 @@ const tourSchema = new mongoose.Schema(
 tourSchema.virtual('durationWeeks').get(function () {
   // 用既存的 duration 欄位動態計算出約為多少禮拜
   return this.duration / 7;
+});
+
+// Document middleware:在 .save() & .create() 之前執行
+tourSchema.pre('save', function (next) {
+  // this指向目前的被存入的 document
+  this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
+// Query middleware
+tourSchema.pre(/^find/, function (next) {
+  // this指向目前的 query object
+  this.find({ secretTour: { $ne: true } });
+  this.start = Date.now();
+  next();
+});
+
+tourSchema.post(/^find/, function (docs, next) {
+  console.log(`Query took ${(Date.now() - this.start) / 1000} seconds`);
+  next();
+});
+
+// Aggregation middleware
+tourSchema.pre('aggregate', function (next) {
+  // this指向當前的 Aggregation object
+  // .pipeline()回傳陣列，想新增條件要用 .unshift() 新增為第一個陣列元素
+  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+  console.log(this.pipeline());
+  next();
 });
 
 const Tour = mongoose.model('Tour', tourSchema);

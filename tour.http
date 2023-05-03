@@ -2,7 +2,7 @@
 http://localhost:3000/api/v1/tours
 
 ### Get tour(by parameter)
-http://localhost:3000/api/v1/tours/8
+http://localhost:3000/api/v1/tours/6447983c1861db33b84c4251
 
 
 ### Create new tour
@@ -10,10 +10,15 @@ POST http://localhost:3000/api/v1/tours HTTP/1.1
 content-type: application/json
 
 {
-  "name":"test tour",
-  "duration":10,
-  "difficulty":"easy",
-  "price":100
+  "name":"Secret Tour",
+  "description":"Just test",
+  "duration":1,
+  "maxGroupSize":1,
+  "difficulty":"difficult",
+  "price":1,
+  "summary":"Test tour",
+  "imageCover":"tour-test-cover.svg",
+  "secretTour":true
 }
 
 ### Update tour
@@ -39,9 +44,9 @@ http://localhost:3000/api/v1/tours?limit=3&page=3&fields=name
 ### Alias(get top 5 cheap tours
 http://localhost:3000/api/v1/tours/top-5-cheap
 
-### Aggregation Pipeline
+### Aggregation Pipeline:tour states
 http://localhost:3000/api/v1/tours/tour-stats
 
-### Aggregation Pipeline (2
+### Aggregation Pipeline:monthly plan
 http://localhost:3000/api/v1/tours/monthly-plan/2021
 
