@@ -39,3 +39,9 @@ http://localhost:3000/api/v1/tours?limit=3&page=3&fields=name
 ### Alias(get top 5 cheap tours
 http://localhost:3000/api/v1/tours/top-5-cheap
 
+### Aggregation Pipeline
+http://localhost:3000/api/v1/tours/tour-stats
+
+### Aggregation Pipeline (2
+http://localhost:3000/api/v1/tours/monthly-plan/2021
+
