@@ -36,3 +36,20 @@ Receiving request 、 Sending response 循環中執行的 function
   表現層邏輯、模板
 
 > Fat models/thin controllers: 把邏輯集中在 MODEL,保持 CONTROLLER 簡單、容易管理。
+
+## Authentication,AUthorization & Security
+
+### 使用 JWT(JSON Web Token)做身分驗證
+
+使用 Session 在 Server 端存使用者資訊，違反了 Rest API 無狀態(stateless)的原則。
+
+因此這個專案採用 JWT 取代傳統 Session 來做使用者的身分驗證，來保持無狀態。
+
+流程如下:
+
+1. Client 端發出一個 Post 請求(挾帶 email、密碼)給 server
+2. Server 端透過資料庫確認，製造一個 unique JWT
+3. Server 回傳 JWT 給使用者
+4. Client 端儲存 JWT(cookie 或 localStorage)
+5. Client 端嘗試存取受保護的路由
+6. Server 端檢查 JWT，如果通過檢查(verifying)，允許 Client 端存取路由
