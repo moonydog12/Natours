@@ -107,9 +107,28 @@ const restrictTo =
     next();
   };
 
+const forgetPassword = catchAsync(async (req, res, next) => {
+  // 1.根據 post data 的 email 取得 user data
+  const user = await User.findOne({ email: req.body.email });
+
+  if (!user) {
+    return next(new AppError('There is no user with email address', 404));
+  }
+
+  // 2.製造一個隨機token(method定義在 model)
+  const resetToken = user.createPasswordResetToken();
+  await user.save({ validateBeforeSave: false });
+
+  // 3.傳到user email
+});
+
+const resetPassword = (req, res, next) => {};
+
 module.exports = {
   signUp,
   login,
   protect,
   restrictTo,
+  forgetPassword,
+  resetPassword,
 };
