@@ -11,6 +11,18 @@ const createSignToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
+const createSendToken = (user, statusCode, res) => {
+  const token = createSignToken(user._id);
+
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+    data: {
+      user,
+    },
+  });
+};
+
 const signUp = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     // 只存必要欄位(防止一般使用者註冊為管理員身分)
@@ -21,15 +33,7 @@ const signUp = catchAsync(async (req, res, next) => {
     passwordChangedAt: req.body.passwordChangedAt,
   });
 
-  const token = createSignToken(newUser._id);
-
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: {
-      user: newUser,
-    },
-  });
+  createSendToken(newUser, 201, res);
 });
 
 const login = catchAsync(async (req, res, next) => {
@@ -49,11 +53,7 @@ const login = catchAsync(async (req, res, next) => {
   }
 
   // 3.通過以上檢查，回傳 token 給 client
-  const token = createSignToken(user._id);
-  res.status(200).json({
-    status: 'success',
-    token,
-  });
+  createSendToken(user, 200, res);
 });
 
 // 保護路由 middleware
@@ -180,8 +180,28 @@ const resetPassword = catchAsync(async (req, res, next) => {
 
   // 3.更新 user changedPasswordAt欄位資料
   // 4.登入使用者(送JWT)
-  const token = createSignToken(user._id);
-  res.status(200).json({ status: 'success', token });
+  createSendToken(user, 200, res);
+});
+
+const updatePassword = catchAsync(async (req, res, next) => {
+  // 1.取得使用者資料
+  const user = await User.findById(req.user.id).select('+password');
+
+  // 2.檢查 Post 得到的密碼是正確的
+  if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
+    return next(new AppError('Your current password is wrong', 401));
+  }
+  // 3.通過檢查，更新密碼
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+
+  /* 不能用User.findByIdANdUpdate在有關於密碼相關欄位，
+  validator無法作用，因為 this 指不到當前該筆document
+   */
+  await user.save();
+
+  // 4.登入使用者，送JWT
+  createSendToken(user, 200, res);
 });
 
 module.exports = {
@@ -191,4 +211,5 @@ module.exports = {
   restrictTo,
   forgetPassword,
   resetPassword,
+  updatePassword,
 };

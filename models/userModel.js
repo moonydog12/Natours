@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please confirm your password'],
 
-    // 確認密碼相同(只在新增使用者時作用!)
+    // 確認密碼相同(only works on CREATE and SAVE!)
     validate: {
       validator: function (el) {
         return el === this.password;
@@ -50,6 +50,11 @@ const userSchema = new mongoose.Schema({
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 userSchema.pre('save', async function (next) {
@@ -73,6 +78,13 @@ userSchema.pre('save', function (next) {
 
   // 確定欄位是在密碼更新後才刷新，避免造成更新密碼後token卻過期
   this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+
+// Query middleware
+userSchema.pre(/^find/, function (next) {
+  // this指向當前 query
+  this.find({ active: { $ne: false } });
   next();
 });
 
@@ -106,8 +118,6 @@ userSchema.methods.createPasswordResetToken = function () {
     .createHash('sha256')
     .update(resetToken)
     .digest('hex');
-
-  console.log({ resetToken }, this.passwordResetToken);
 
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
