@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
@@ -151,7 +152,37 @@ const forgetPassword = catchAsync(async (req, res, next) => {
   }
 });
 
-const resetPassword = (req, res, next) => {};
+const resetPassword = catchAsync(async (req, res, next) => {
+  /* 1.透過token取得使用者資料
+      要再加密一次才能比較，因為存在資料庫的是加密過的token
+  */
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(req.params.token)
+    .digest('hex');
+
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: {
+      $gt: Date.now(),
+    },
+  });
+
+  // 2.如果token沒過期，且user存在資料庫，重設密碼
+  if (!user) {
+    return next(new AppError('Token is invalid or has expired', 400));
+  }
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+
+  // 3.更新 user changedPasswordAt欄位資料
+  // 4.登入使用者(送JWT)
+  const token = createSignToken(user._id);
+  res.status(200).json({ status: 'success', token });
+});
 
 module.exports = {
   signUp,
