@@ -14,6 +14,23 @@ const createSignToken = (id) =>
 const createSendToken = (user, statusCode, res) => {
   const token = createSignToken(user._id);
 
+  // 透過 Cookie 傳送 JWT
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true, // 只允許http方式(client端不能修改 cookie)
+  };
+
+  if (process.env.NODE_ENV === 'production') {
+    // 只允許透過 https
+    cookieOptions.secure = true;
+  }
+  res.cookie('jwt', token, cookieOptions);
+
+  // remove password from the output
+  user.password = undefined;
+
   res.status(statusCode).json({
     status: 'success',
     token,
