@@ -53,3 +53,13 @@ Receiving request 、 Sending response 循環中執行的 function
 4. Client 端儲存 JWT(cookie 或 localStorage)
 5. Client 端嘗試存取受保護的路由
 6. Server 端檢查 JWT，如果通過檢查(verifying)，允許 Client 端存取路由
+
+示意圖:
+
+![JWT process flow chart](./assets/jwt-flow.jpg 'JWT flow')
+
+## Best practices
+
+安全性對於應用程式而言是至關重要的一環，但是關於安全性的技術深度及攻擊手段很多，無法在課程內容中全部涵蓋。因此老師針對了較常見的攻擊方式，提供一些提升程式安全性的實踐。
+
+![Best Practices](./assets/best-practices.jpg 'Best Practices')
