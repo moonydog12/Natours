@@ -97,7 +97,14 @@ const tourSchema = new mongoose.Schema(
         day: Number,
       },
     ],
-    guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+
+        // 建立與其他 Model 的參照
+        ref: 'User',
+      },
+    ],
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
@@ -115,18 +122,19 @@ tourSchema.pre('save', function (next) {
   next();
 });
 
-// Embedding reference example(把 user data 加入 tour document)
-// tourSchema.pre('save', async function (next) {
-//   const guidesPromises = this.guides.map(async (id) => await User.findById(id));
-//   this.guides = await Promise.all(guidesPromises);
-//   next();
-// });
-
 // Query middleware
 tourSchema.pre(/^find/, function (next) {
   // this指向目前的 query object
   this.find({ secretTour: { $ne: true } });
   this.start = Date.now();
+  next();
+});
+
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v -passwordChangedAt',
+  });
   next();
 });
 
