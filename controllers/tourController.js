@@ -32,7 +32,7 @@ const getAllTours = catchAsync(async (req, res, next) => {
 });
 
 const getTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id);
+  const tour = await Tour.findById(req.params.id).populate('reviews');
 
   // 如果沒有對應的資料，回傳 next 並帶入錯誤參數
   if (!tour) {

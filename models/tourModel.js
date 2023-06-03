@@ -115,6 +115,13 @@ tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
 
+// Virtual populate
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id',
+});
+
 // Document middleware:在 .save() & .create() 之前執行
 tourSchema.pre('save', function (next) {
   // this指向目前的被存入的 document
