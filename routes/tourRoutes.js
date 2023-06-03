@@ -10,8 +10,12 @@ const {
   getTourStats,
   getMonthlyPlan,
 } = require('../controllers/tourController');
+const reviewRouter = require('./reviewRoutes');
 
 const router = express.Router();
+
+// Redirect
+router.use('/:tourId/reviews', reviewRouter);
 
 // Param middleware
 router.route('/top-5-cheap').get(aliasTopTours, getAllTours);

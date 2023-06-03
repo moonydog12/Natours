@@ -5,7 +5,10 @@ const {
 } = require('../controllers/reviewController');
 const { protect, restrictTo } = require('../controllers/authController');
 
-const router = express.Router();
+const router = express.Router({
+  // 允許使用其他 route 的網址參數
+  mergeParams: true,
+});
 
 router
   .route('/')
