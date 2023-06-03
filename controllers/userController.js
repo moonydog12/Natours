@@ -1,6 +1,7 @@
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
+const factory = require('./handlerFactory');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -14,19 +15,6 @@ const filterObj = (obj, ...allowedFields) => {
 };
 
 // Users
-const getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await User.find();
-
-  // 回傳結果
-  res.status(200).json({
-    status: 'successful',
-    results: users.length,
-    data: {
-      users,
-    },
-  });
-});
-
 const updateMe = catchAsync(async (req, res, next) => {
   // 1.如果使用者POST 密碼資料，新增一個error
   if (req.body.password || req.body.passwordConfirm) {
@@ -57,33 +45,17 @@ const deleteMe = catchAsync(async (req, res, next) => {
   });
 });
 
-const getUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined',
-  });
-};
-
 const createUser = (req, res) => {
   res.status(500).json({
     status: 'error',
-    message: 'This route is not yet defined',
+    message: 'This route is not defined! Please use sing up instead',
   });
 };
 
-const updateUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined',
-  });
-};
-
-const deleteUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined',
-  });
-};
+const getAllUsers = factory.getAll(User);
+const getUser = factory.getOne(User);
+const updateUser = factory.updateOne(User); // 不要在這個路由去做密碼相關的更動(沒有protect)
+const deleteUser = factory.deleteOne(User);
 
 module.exports = {
   getAllUsers,

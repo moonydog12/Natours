@@ -1,6 +1,5 @@
 const Tour = require('../models/tourModel');
-const APIFeatures = require('../utils/apiFeatures');
-const AppError = require('../utils/appError');
+const factory = require('./handlerFactory');
 const catchAsync = require('../utils/catchAsync');
 
 const aliasTopTours = (req, res, next) => {
@@ -11,83 +10,11 @@ const aliasTopTours = (req, res, next) => {
 };
 
 // Handlers
-const getAllTours = catchAsync(async (req, res, next) => {
-  // Build query
-  // 執行 query(必須放在 chaining method之後,因為回傳Promise物件之後就不能chain了)
-  const features = new APIFeatures(Tour.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
-  const tours = await features.query;
-
-  // 回傳結果
-  res.status(200).json({
-    status: 'successful',
-    results: tours.length,
-    data: {
-      tours,
-    },
-  });
-});
-
-const getTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id).populate('reviews');
-
-  // 如果沒有對應的資料，回傳 next 並帶入錯誤參數
-  if (!tour) {
-    return next(new AppError('No tour found with that ID', 404));
-  }
-
-  res.status(200).json({
-    status: 'successful',
-    data: {
-      tour,
-    },
-  });
-});
-
-const createTour = catchAsync(async (req, res, next) => {
-  const newTour = await Tour.create(req.body);
-  res.status(201).json({
-    status: 'successful',
-    data: {
-      tour: newTour,
-    },
-  });
-});
-
-const updateTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    // 是否觸發驗證機制
-    runValidators: true,
-  });
-
-  if (!tour) {
-    return next(new AppError('No tour found with that ID', 404));
-  }
-
-  res.status(200).json({
-    status: 'successful',
-    data: {
-      tour,
-    },
-  });
-});
-
-const deleteTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findByIdAndDelete(req.params.id);
-
-  if (!tour) {
-    return next(new AppError('No tour found with that ID', 404));
-  }
-
-  res.status(204).json({
-    status: 'successful',
-    data: null,
-  });
-});
+const getAllTours = factory.getAll(Tour);
+const getTour = factory.getOne(Tour, { path: 'reviews' });
+const createTour = factory.createOne(Tour);
+const updateTour = factory.updateOne(Tour);
+const deleteTour = factory.deleteOne(Tour);
 
 const getTourStats = catchAsync(async (req, res, next) => {
   // Aggregation pipeline
