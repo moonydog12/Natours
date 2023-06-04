@@ -84,6 +84,8 @@ exports.getAll = (Model) =>
       .sort()
       .limitFields()
       .paginate();
+
+    // const document = await features.query.explain();
     const document = await features.query;
 
     // 回傳結果

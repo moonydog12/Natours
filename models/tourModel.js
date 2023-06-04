@@ -109,6 +109,9 @@ const tourSchema = new mongoose.Schema(
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+tourSchema.index({ slug: 1 });
+
 // Virtual Properties: 衍生欄位(不會被存入資料庫)
 tourSchema.virtual('durationWeeks').get(function () {
   // 用既存的 duration 欄位動態計算出約為多少禮拜

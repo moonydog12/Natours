@@ -10,6 +10,7 @@ const {
   deleteUser,
   updateMe,
   deleteMe,
+  getMe,
 } = require('../controllers/userController');
 
 const {
@@ -19,16 +20,24 @@ const {
   resetPassword,
   protect,
   updatePassword,
+  restrictTo,
 } = require('../controllers/authController');
 
 router.post('/signup', signUp);
 router.post('/login', login);
 router.post('/forgetPassword', forgetPassword);
 router.patch('/resetPassword/:token', resetPassword);
-router.patch('/updateMyPassword', protect, updatePassword);
-router.patch('/updateMe', protect, updateMe);
-router.delete('/deleteMe', protect, deleteMe);
 
+// 保護下面全部路由
+router.use(protect);
+
+router.patch('/updateMyPassword', updatePassword);
+router.get('/me', getMe, getUser);
+router.patch('/updateMe', updateMe);
+router.delete('/deleteMe', deleteMe);
+
+// 下面路由只有管理員能使用
+router.use(restrictTo('admin'));
 router.route('/').get(getAllUsers).post(createUser);
 router.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
 
