@@ -34,6 +34,7 @@ const tourSchema = new mongoose.Schema(
       default: 4.5,
       min: [1, 'Rating must be above 1.0'],
       max: [5, 'Rating must be below 5.0'],
+      set: (val) => Math.round(val * 10) / 10,
     },
     ratingsQuantity: { type: Number, default: 0 },
     price: { type: Number, required: [true, 'A tour must have a price'] },
@@ -111,6 +112,7 @@ const tourSchema = new mongoose.Schema(
 
 tourSchema.index({ price: 1, ratingsAverage: -1 });
 tourSchema.index({ slug: 1 });
+tourSchema.index({ startLocation: '2dsphere' });
 
 // Virtual Properties: 衍生欄位(不會被存入資料庫)
 tourSchema.virtual('durationWeeks').get(function () {
@@ -145,20 +147,6 @@ tourSchema.pre(/^find/, function (next) {
     path: 'guides',
     select: '-__v -passwordChangedAt',
   });
-  next();
-});
-
-tourSchema.post(/^find/, function (docs, next) {
-  console.log(`Query took ${(Date.now() - this.start) / 1000} seconds`);
-  next();
-});
-
-// Aggregation middleware
-tourSchema.pre('aggregate', function (next) {
-  // this指向當前的 Aggregation object
-  // .pipeline()回傳陣列，想新增條件要用 .unshift() 新增為第一個陣列元素
-  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
-  console.log(this.pipeline());
   next();
 });
 

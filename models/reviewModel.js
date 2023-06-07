@@ -35,6 +35,9 @@ const reviewSchema = new mongoose.Schema(
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
+// Unique compound 防止使用者重複評論
+reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
+
 // 填充 Reviews(每一個 populate() 都是一次額外的 query ，當搜尋資料變多時要注意效能問題)
 reviewSchema.pre(/^find/, function (next) {
   this.populate({
