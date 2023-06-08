@@ -24,11 +24,13 @@
     "mongoose": "^5.13.17",
     "morgan": "^1.10.0",
     "nodemailer": "^6.9.2",
+    "pug": "^3.0.2",
     "slugify": "^1.6.6",
     "validator": "^13.9.0",
     "xss-clean": "^0.1.1"
   },
   "devDependencies": {
+    "@prettier/plugin-pug": "^2.5.1",
     "eslint": "^8.38.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^8.8.0",
@@ -37,6 +39,6 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.32.2",
-    "prettier": "^2.8.7"
+    "prettier": "^2.8.8"
   }
 }
