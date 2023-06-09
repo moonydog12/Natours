@@ -1,6 +1,14 @@
 extends base
 include _reviewCard
 
+block append head
+  script(src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js')
+  link(
+    href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css',
+    rel='stylesheet'
+  )
+  script(src='/js/mapbox.js', defer) 
+
 mixin overviewBox(label, text, icon)
   .overview-box__detail
     svg.overview-box__icon
@@ -75,7 +83,8 @@ block content
         )
 
   section.section-map
-    #map
+    //- 把資料庫撈出來的資料塞到 data 屬性，不用 Ajax 再多撈一次
+    #map(data-locations=`${JSON.stringify(tour.locations)}`)
 
   section.section-reviews
     .reviews
