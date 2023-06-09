@@ -1,16 +1,21 @@
 html(lang='en')
   head
-    meta(charset='UTF-8')
-    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    meta(charset='UTF-8') 
     meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    link(
+      href='https://fonts.googleapis.com/css?family=Lato:300,300i,700',
+      rel='stylesheet'
+    )
     link(rel='stylesheet', href='css/style.css')
-    link(rel='shortcut icon', href='img/favicon.png', type='image/png')
-    title Natours | #{ tour }
+    link(rel='shortcut icon', type='image/png', href='img/favicon.png')
+    title Natours | #{ title }
   body
-    h1= tour
-    h2= user.toUpperCase()
+    // Header
+    include _header
 
-    - const x = 6;
-    h2= x * 2
+    // Content
+    block content
+      h1 This is a placeholder heading
 
-    p This is just some text
+    // Footer
+    include _footer
