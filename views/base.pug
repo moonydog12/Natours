@@ -10,13 +10,18 @@ html(lang='en')
       link(rel='stylesheet', href='/css/style.css')
       link(rel='shortcut icon', type='image/png', href='/img/favicon.png')
       title Natours | #{ title }
+      //- script(
+      //-   src='https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js'
+      //- )
+  body
+    // Header
+    include _header
 
-  // Header
-  include _header
+    // Content
+    block content
+      h1 This is a placeholder heading
 
-  // Content
-  block content
-    h1 This is a placeholder heading
+    // Footer
+    include _footer
 
-  // Footer
-  include _footer
+  script(src='/js/bundle.js', defer) 

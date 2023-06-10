@@ -7,6 +7,8 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -23,11 +25,23 @@ app.set('views', path.join(__dirname, 'views'));
 
 /* Global Middleware */
 
+// cors
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
+
 // Serving static files
 app.use(express.static(path.join(__dirname, 'public')));
 
 // 設定 security HTTP headers
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+  })
+);
 
 // Development log in
 if (process.env.NODE_ENV === 'development') {
@@ -49,6 +63,8 @@ app.use(
     limit: '10kb',
   })
 );
+
+app.use(cookieParser());
 
 // Data sanitization 防止 NoSQL query 注入攻擊(過濾掉NoSQL運算子 ex. $)
 app.use(mongoSanitize());
@@ -74,6 +90,8 @@ app.use(
 // Test middleware
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
+  console.log(req.cookies);
+
   next();
 });
 

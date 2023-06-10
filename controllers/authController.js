@@ -78,10 +78,14 @@ const protect = catchAsync(async (req, res, next) => {
   let token;
   const isValidToken =
     req.headers.authorization && req.headers.authorization.startsWith('Bearer');
+
   // 1.確認jwt token
   if (isValidToken) {
     token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
   }
+
   if (!token) {
     return next(
       new AppError('You are not logged in!Please log in to get access.', 401)
@@ -111,6 +115,48 @@ const protect = catchAsync(async (req, res, next) => {
   req.user = currentUser; // 把資料加到 request，讓後續 middleware可以使用
   next();
 });
+
+// 登出
+const logout = (req, res, next) => {
+  // 新增一個空的 cookie 來取代原本有 jwt 的 cookie
+  res.cookie('jwt', 'loggedout', {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+
+  res.status(200).json({ status: 'success' });
+};
+
+// Only for rendered pages, no errors
+const isLoggedIn = async (req, res, next) => {
+  try {
+    if (!req.cookies.jwt) return next();
+
+    // 1.驗證token
+    const decoded = await promisify(jwt.verify)(
+      req.cookies.jwt,
+      process.env.JWT_SECRET
+    );
+
+    // 2.確認使用者存在(解密資料的userId 跟 資料庫的userID 會完全相同)
+    const currentUser = await User.findById(decoded.id);
+    if (!currentUser) {
+      return next();
+    }
+
+    // 3.確認使用者是否在接收token後有變更過密碼
+    const isPasswordChanged = currentUser.changedPasswordAfter(decoded.iat);
+    if (isPasswordChanged) {
+      return next();
+    }
+
+    // 將使用者資料存到 locals，方便前端 template 拿資料
+    res.locals.user = currentUser;
+  } catch (error) {
+    return next();
+  }
+  next();
+};
 
 // 權限限制
 const restrictTo =
@@ -229,4 +275,6 @@ module.exports = {
   forgetPassword,
   resetPassword,
   updatePassword,
+  isLoggedIn,
+  logout,
 };
