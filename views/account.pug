@@ -29,12 +29,18 @@ block content
       .user-view__content
         .user-view__form-container
           h2.heading-secondary.ma-bt-md Your account settings
+
+          //- 透過非API方式
+          //- form.form.form-user-data(action='/submit-user-data', method='POST')
+
+          //- API way
           form.form.form-user-data
             .form__group
               label.form__label(for='name') Name
               input#name.form__input(
                 type='text',
                 value=`${user.name}`,
+                name='name',
                 required
               )
             .form__group.ma-bt-md
@@ -42,6 +48,7 @@ block content
               input#email.form__input(
                 type='email',
                 value=`${user.email}`,
+                name='email',
                 required
               )
             .form__group.form__photo-upload
@@ -51,11 +58,12 @@ block content
               )
               a.btn-text(href='') Choose new photo
             .form__group.right
-              button.btn.btn--small.btn--green Save settings
+              button.btn.btn--small.btn--green.btn--save Save settings
+
         .line &nbsp;
         .user-view__form-container
           h2.heading-secondary.ma-bt-md Password change
-          form.form.form-user-settings
+          form.form.form-user-password
             .form__group
               label.form__label(for='password-current') Current password
               input#password-current.form__input(
@@ -81,4 +89,4 @@ block content
                 minlength='8'
               )
             .form__group.right
-              button.btn.btn--small.btn--green Save password
+              button.btn.btn--small.btn--green.btn--save-password Save password
