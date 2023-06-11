@@ -1,5 +1,6 @@
 const Tour = require('../models/tourModel');
 const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 
 const getOverview = catchAsync(async (req, res, next) => {
   const tours = await Tour.find();
@@ -14,6 +15,10 @@ const getTour = catchAsync(async (req, res, next) => {
     path: 'reviews',
     fields: 'reviews rating user',
   });
+
+  if (!tour) {
+    return next(new AppError('There is no tour with that name!', 404));
+  }
 
   res
     .status(200)
@@ -33,4 +38,10 @@ const getLoginForm = (req, res) => {
   });
 };
 
-module.exports = { getOverview, getTour, getLoginForm };
+const getAccount = (req, res) => {
+  res.status(200).render('account', {
+    title: 'Your account',
+  });
+};
+
+module.exports = { getOverview, getTour, getLoginForm, getAccount };

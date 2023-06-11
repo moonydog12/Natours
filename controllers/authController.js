@@ -113,6 +113,7 @@ const protect = catchAsync(async (req, res, next) => {
 
   // 提供使用路由的權限
   req.user = currentUser; // 把資料加到 request，讓後續 middleware可以使用
+  res.locals.user = currentUser; // 將使用者資料存到 locals，方便前端 template 拿資料
   next();
 });
 
