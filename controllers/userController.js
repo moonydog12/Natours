@@ -1,7 +1,50 @@
+const multer = require('multer');
+const sharp = require('sharp');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./handlerFactory');
+
+// Configuring Multer
+const multerStorage = multer.memoryStorage(); // Store image as a buffer
+// const multerStorage = multer.diskStorage({
+//   destination: (req, file, callback) => {
+//     callback(null, 'public/img/users');
+//   },
+//   filename: (req, file, callback) => {
+//     // 取得副檔名
+//     const extension = file.mimetype.split('/')[1];
+//     callback(null, `user-${req.user.id}-${Date.now()}.${extension}`);
+//   },
+// });
+
+const multerFilter = (req, file, callback) => {
+  if (file.mimetype.startsWith('image')) {
+    callback(null, true);
+  } else {
+    callback(
+      new AppError('Not an image! Please upload only images.', 400),
+      false
+    );
+  }
+};
+
+const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
+const uploadUserPhoto = upload.single('photo');
+
+// Resize 照片大小
+const resizeUserPhoto = (req, res, next) => {
+  req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
+
+  if (!req.file) return next();
+  sharp(req.file.buffer)
+    .resize(500, 500)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(`public/img/users/${req.file.filename}`);
+
+  next();
+};
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -28,6 +71,7 @@ const updateMe = catchAsync(async (req, res, next) => {
 
   // 2.過濾不允許修改的欄位
   const filteredBody = filterObj(req.body, 'name', 'email');
+  if (req.file) filteredBody.photo = req.file.filename;
 
   // 3.更新 user document
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
@@ -71,4 +115,6 @@ module.exports = {
   updateMe,
   deleteMe,
   getMe,
+  uploadUserPhoto,
+  resizeUserPhoto,
 };
