@@ -56,7 +56,12 @@ block content
                 src=`img/users/${user.photo}`,
                 alt='User photo'
               )
-              a.btn-text(href='') Choose new photo
+              input#photo.form__upload(
+                type='file',
+                accept='image/*',
+                name='photo'
+              )
+              label(for='photo') Choose new photo
             .form__group.right
               button.btn.btn--small.btn--green.btn--save Save settings
 
