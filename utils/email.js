@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const nodemailerSendgrid = require('nodemailer-sendgrid');
 const pug = require('pug');
 const { convert } = require('html-to-text');
 
@@ -14,7 +15,11 @@ module.exports = class Email {
   createNewTransport() {
     if (process.env.NODE_ENV === 'production') {
       // Sendgrid
-      return 1;
+      return nodemailer.createTransport(
+        nodemailerSendgrid({
+          apiKey: process.env.SENDGRID_PASSWORD,
+        })
+      );
     }
 
     return nodemailer.createTransport({
@@ -51,5 +56,12 @@ module.exports = class Email {
 
   async sendWelcome() {
     await this.send('welcome', 'Welcome to the Natours Family');
+  }
+
+  async sendPasswordReset() {
+    await this.send(
+      'passwordReset',
+      'Your password reset token (valid for only 10 minutes )'
+    );
   }
 };
